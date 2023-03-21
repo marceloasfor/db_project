@@ -22,6 +22,7 @@ def get_page_number_by_key(k):
         iterations += 1
         if k in value:
             return iterations, indexes[id][key][k]
+    return iterations, None
 
 class Page:
     overflow = 0
@@ -64,6 +65,8 @@ class Page:
         Returns the # of iter and the object
         '''
         iterations, page_number = get_page_number_by_key(k)
+        if not page_number:
+            return iterations, None
         current_page = self.page[page_number]
         for el in current_page:
             iterations += 1
