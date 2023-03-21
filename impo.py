@@ -6,10 +6,11 @@ NB = 10_000
 indexes = [{} for b in range(NB)]
 
 def hash_(k):
-    value = 0
-    for c in k:
-        value += ord(c)
-    return abs(int(value % NB))
+    hs = 0
+    for n in k:
+        character = ord(n)
+        hs = ((hs << 5) - hs) + character
+    return abs(hs) % NB
 
 def get_page_number_by_key(k):
     '''
@@ -51,12 +52,14 @@ class Page:
 
     def table_scan_find(self, search):
         iteration = 0
+        num_pages = 0
         for obj_ in self.page:
+            num_pages += 1
             for element in obj_:
                 iteration += 1
                 if search == element:
-                    return element, iteration
-        return None, iteration
+                    return element, iteration, num_pages
+        return None, iteration, num_pages
 
     
     def get_element_from_index(self, k):
@@ -124,16 +127,16 @@ def table_scan_start():
 def table_scan_search_fn():
     search = table_scan_search_input.get('1.0','end-1c').strip('\n')
     print(search)
-    found, iterations = obj.table_scan_find(search=search)
+    found, iterations, num_pages = obj.table_scan_find(search=search)
     if found:
-        table_scan_search_result['text'] = f'Encontrado | {iterations} iterações'
+        table_scan_search_result['text'] = f'Encontrado | {iterations} iterações | # Páginas: {num_pages}'
     else:
-        table_scan_search_result['text'] = f'Não encontrado | {iterations} iterações'
+        table_scan_search_result['text'] = f'Não encontrado | {iterations} iterações | # Páginas: {num_pages}'
 
 def table_insert():
     obj.insert()
     overflow_label['text'] = f'Overflow: {obj.overflow}'
-    collision_label['text'] = f'Colisão: {obj.collision}'
+    collision_label['text'] = f'Colisão: {obj.collision} | {(obj.collision/obj.number_of_objects())*100.0:.2f}%'
     print(f'tamanho pagina = {len(obj.page[0])}')
 
 def index_search_fn():
